@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  ftp-server:
+    image: fauria/vsftpd
+    container_name: ftp-server
+    environment:
+      - FTP_USER=admin
+      - FTP_PASS=password
+      - PASV_ADDRESS=127.0.0.1
+      - PASV_MIN_PORT=21000
+      - PASV_MAX_PORT=21010
+    ports:
+      - "21:21"
+      - "21000-21010:21000-21010"
+    volumes:
+      - ./ftp_data:/home/vsftpd/admin
+    restart: unless-stopped
+
+  data-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile.generator
+    container_name: data-generator
+    volumes:
+      - ./ftp_data:/app/ftp_data
+    depends_on:
+      - ftp-server
+    restart: unless-stopped 
